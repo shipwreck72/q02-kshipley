@@ -22,6 +22,16 @@
 **/
 Piezas::Piezas()
 {
+    unsigned int i, j;
+    board.resize(BOARD_COLS);
+    for(i = 0; i < board.size(); i++)
+        board[i].resize(BOARD_ROWS);
+    for(i = 0; i < board.size(); i++)
+    {
+        for(j = 0; j < board[i].size(); j++)
+            board[i][j] = Blank;
+    }
+    turn = X;
 }
 
 /**
@@ -30,6 +40,12 @@ Piezas::Piezas()
 **/
 void Piezas::reset()
 {
+        for(unsigned int i = 0; i < board.size(); i++)
+    {
+        for(unsigned int j = 0; j < board[i].size(); j++)
+            board[i][j] = Blank;
+    }
+    turn = X;
 }
 
 /**
@@ -42,6 +58,25 @@ void Piezas::reset()
 **/ 
 Piece Piezas::dropPiece(int column)
 {
+    Piece temp = turn;
+    
+    if(turn == X)
+        turn = O;
+    else 
+        turn = X;
+        
+    if(column < 0 || column >= BOARD_COLS)
+        return Invalid;
+    
+    for(int i = BOARD_ROWS-1; i >=0; i--)
+    {
+        if(board[column][i] == Blank)
+        {
+            board[column][i] = temp;
+            return temp;
+        }
+    }
+        
     return Blank;
 }
 
@@ -51,7 +86,11 @@ Piece Piezas::dropPiece(int column)
 **/
 Piece Piezas::pieceAt(int row, int column)
 {
-    return Blank;
+    if(row < 0 || row >= BOARD_ROWS || column < 0 || column >= BOARD_COLS)
+        return Invalid;
+    
+    return board[column][row];
+   // return Blank;
 }
 
 /**
@@ -65,5 +104,79 @@ Piece Piezas::pieceAt(int row, int column)
 **/
 Piece Piezas::gameState()
 {
+    int Xs = 0;
+    int Os = 0;
+    
+    for(int i = 0; i < BOARD_COLS; i++){
+        for(int j = 0; j < BOARD_ROWS; j++){
+            if(pieceAt(j, i) == Blank)
+                return Invalid;
+        }
+    }
+    
+    for(int i = 0; i < BOARD_COLS; i++)
+    {
+        int tempX = 0;
+        int tempO = 0;
+        Piece prev =  Invalid;
+        
+        for( int j = 0; j < BOARD_ROWS; j++){
+            if(pieceAt(j, i) == X && (prev == X || prev == Invalid))
+                tempX++;
+            else{
+                if(tempX > Xs){
+                    Xs = tempX;
+                    tempX = 0;
+                }
+            }
+        }
+        
+        prev = Invalid;
+        for( int j = 0; j < BOARD_ROWS; j++){
+            if(pieceAt(j, i) == O && (prev == O || prev == Invalid))
+                tempO++;
+            else{
+                if(tempO > Os){
+                    Os = tempO;
+                    tempO = 0;
+                }
+            }
+        }
+        
+    }
+    for(int i = 0; i < BOARD_ROWS; i++)
+    {
+        int tempX = 0;
+        int tempO = 0;
+        Piece prev =  Invalid;
+        
+        for( int j = 0; j < BOARD_COLS; j++){
+            if(pieceAt(i, j) == X && (prev == X || prev == Invalid))
+                tempX++;
+            else{
+                if(tempX > Xs){
+                    Xs = tempX;
+                    tempX = 0;
+                }
+            }
+        }
+        
+        prev = Invalid;
+        for( int j = 0; j < BOARD_COLS; j++){
+            if(pieceAt(i, j) == O && (prev == O || prev == Invalid))
+                tempO++;
+            else{
+                if(tempO > Os){
+                    Os = tempO;
+                    tempO = 0;
+                }
+            }
+        }
+        
+    }
+    if(Xs > Os)
+        return X;
+    if(Os > Xs)
+        return O;
     return Blank;
 }
